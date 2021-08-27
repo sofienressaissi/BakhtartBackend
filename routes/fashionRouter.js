@@ -6,6 +6,12 @@ const authBakht = require("../midlleware/authBakht");
 require('dotenv').config();
 const crypto = require("crypto");
 const forget_passwordFashion = require("../models/forget_passwordFashion");
+const productBakhtart = require('../models/product-bakhtart');
+const cartBakht = require('../models/cartBakhtart');
+const orderBakht = require('../models/orderBakhtart');
+const wishProduct = require('../models/wishProd');
+const productSeen = require('../models/prodSeen');
+const prodRate = require('../models/productRate');
 var randomstring = require("randomstring");
 var nodemailer = require('nodemailer');
 
@@ -111,7 +117,7 @@ router.post("/register", async (req, res) => {
             from: process.env.MAILER_USER,
             to: newFashion.email,
             subject: 'BakhtArt - Verify your email',
-            text: 'Hello, thanks for registering to BakhtArt. Please copy the address below to verify your account. https://pacific-thicket-59211.herokuapp.com/fashion/verify-email?token='+newFashion.emailToken,
+            text: 'Hello, thanks for registering to BakhtArt. Please copy the address below to verify your account. https://bakhtart-backend.herokuapp.com/fashion/verify-email?token='+newFashion.emailToken,
             html: `
             <h1>Hello ${newFashion.username},</h1>
             <p>Thank you for registering to our website.</p>
@@ -641,6 +647,288 @@ router.post("/tokenIsValid", async (req, res) => {
             return res.json(false);
         }
         return res.json(true);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+
+router.post('/add-product-rate/:userId', async(req, res) => {
+    try {
+        let {
+            rateValue,
+            productId
+        } = req.body
+        const newProdRate = new prodRate({
+            rateValue,
+            productId,
+            userId: req.params.userId
+        })
+        const savedProdRate = await newProdRate.save();
+        res.json(savedProdRate);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.post('/add-prod-seen/:userId', async (req, res) => {
+    try {
+        let {
+            productId
+        } = req.body
+        const existedSeenProd = await productSeen.findOne({
+            productId: productId,
+            userId: req.params.userId
+        })
+        if (existedSeenProd) {
+            const seenProdToDelete = await productSeen.findOneAndDelete({
+                productId: productId,
+                userId: req.params.userId
+            });
+            res.json(seenProdToDelete);
+            const newProdSeen = new productSeen({
+                productId: productId,
+                userId: req.params.userId,
+                dateSeen: Date.now()
+            });
+            const savedProdSeen = await newProdSeen.save();
+            res.json(savedProdSeen);
+        } else {
+            const newProdSeen = new productSeen({
+                productId: productId,
+                userId: req.params.userId,
+                dateSeen: Date.now()
+            });
+            const savedProdSeen = await newProdSeen.save();
+            res.json(savedProdSeen);
+        }
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.post('/add-wishlist/:productId/:userId', async (req, res) => {
+    try {
+        const newWishProd = new wishProduct({
+            productId: req.params.productId,
+            userId: req.params.userId
+        });
+        const savedWishProd = await newWishProd.save();
+        res.json(savedWishProd);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.post('/add-to-cart/:userId', async(req, res) => {
+    try {
+        let {
+            productId
+        } = req.body
+        const ecByUserId = await cartBakht.findOne({
+            userId: req.params.userId
+        })
+        const existingCartUser = await cartBakht.findOne({
+            productId: productId,
+            userId: req.params.userId
+        });
+        if (existingCartUser) {
+            return res.status(400).json({msg: "This product is already added to cart!"});
+        }
+        if (ecByUserId) {
+            const newCartBakht = new cartBakht({
+                productId,
+                userId: req.params.userId,
+                quantityMin: 1,
+                orderNumber: ecByUserId.orderNumber
+            });
+            const savedCartBakht = await newCartBakht.save();
+            res.json(savedCartBakht);
+        } else {
+            const newCartBakht = new cartBakht({
+                productId,
+                userId: req.params.userId,
+                quantityMin: 1,
+                orderNumber: Math.floor(10000000 + Math.random() * 90000000)
+            });
+            const savedCartBakht = await newCartBakht.save();
+            res.json(savedCartBakht);
+        }
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.get('/countprodcart',(req,res)=>{
+    cartBakht.find({}, function (err, result) {
+        if (err) {
+            res.send(err)
+        } else {
+            res.json(result)
+        }
+    });
+});
+router.get('/countprodrate',(req,res)=>{
+    prodRate.find({}, function (err, result) {
+        if (err) {
+            res.send(err)
+        } else {
+            res.json(result)
+        }
+    });
+});
+router.get('/all-orders',(req,res)=>{
+    orderBakht.find({}, function (err, result) {
+        if (err) {
+            res.send(err)
+        } else {
+            res.json(result)
+        }
+    });
+});
+router.get('/all-prods-seen',(req,res)=>{
+    productSeen.find({}, function (err, result_prod_seen) {
+        if (err) {
+            res.send(err)
+        } else {
+            res.json(result_prod_seen)
+        }
+    });
+});
+router.get('/all-wish-prods',(req,res)=>{
+    wishProduct.find({}, function (err, resultWish) {
+        if (err) {
+            res.send(err)
+        } else {
+            res.json(resultWish)
+        }
+    });
+});
+router.delete('/delete-prod-from-cart/:productId/:userId', async (req, res) => {
+    try {
+        const existingCartToDelete = await cartBakht.findOneAndDelete({
+            productId: req.params.productId,
+            userId: req.params.userId
+        });
+        res.json(existingCartToDelete);
+        console.log("Cart Deleted");
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.delete('/delete-prod-wish/:productId/:userId', async(req, res) => {
+    try {
+        const existingProdWishToDelete = await wishProduct.findOneAndDelete({
+            productId: req.params.productId,
+            userId: req.params.userId
+        });
+        res.json(existingProdWishToDelete);
+        console.log("Product Deleted From Wishlist");
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.delete('/delete-order/:productId/:userId', async (req, res) => {
+    try {
+        const existingOrderToDelete = await orderBakht.findOneAndDelete({
+            productId: req.params.productId,
+            userId: req.params.userId
+        });
+        res.json(existingOrderToDelete);
+        console.log("Order Deleted");
+        const existingProduct = await productBakhtart.findById(req.params.productId);
+        existingProduct.productQuantity = existingProduct.productQuantity + 1;
+        const updatedEProduct = await existingProduct.save();
+        res.json(updatedEProduct);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.post('/place-order/:productId/:userId', async (req, res) => {
+    try {
+        let {
+            orderNumber
+        } = req.body
+        const existingCart = await cartBakht.findOne({productId: req.params.productId});
+        const newOrderBakht = new orderBakht({
+            productId: req.params.productId,
+            userId: req.params.userId,
+            quantityOrd: existingCart.quantityMin,
+            orderNumber: orderNumber,
+            stateOrd: "Processing",
+            dateOrd: Date.now()
+        });
+        await newOrderBakht.save();
+        const existingProd = await productBakhtart.findById(req.params.productId);
+        existingProd.productQuantity = existingProd.productQuantity - newOrderBakht.quantityOrd;
+        await existingProd.save();
+        const userToMail = await fashionBakht.findById(req.params.userId);
+        res.json(userToMail.email);
+        
+    } catch (err) {
+        console.log(userToMail.email+ " yodhher wéllé");
+    }
+})
+router.get('/send-email-order/:userId/:orderNumber', async (req, res) => {
+try {
+    const userToMail = await fashionBakht.findById(req.params.userId);
+    res.json(userToMail.email);
+    var transporter = nodemailer.createTransport({
+        service: process.env.MAILER_SERVICE,
+        auth: {
+            user: process.env.MAILER_USER,
+            pass: process.env.MAILER_PASS
+        },
+        host: process.env.MAILER_HOST,
+port: 465,
+secure: false,
+    });
+    var mailOptions = {
+        from: process.env.MAILER_USER,
+        to: `${userToMail.email}`,
+        subject: `BakhtArt - Order #${req.params.orderNumber} Confirmation`,
+        text: 'Hello '+userToMail.firstName+', thank you for shopping with us.',
+        html: `
+    <h2>Hello ${userToMail.firstName} ${userToMail.lastName},</h2>
+    <p>Your Order #${req.params.orderNumber} has been submitted! Thank you for shopping with us!</p>
+    <a href="https://bakhtart.herokuapp.com/bakhtArt/my-orders">See My Order</a>
+`
+    };
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log(userToMail.email+ " yodhher wéllé");
+        } else {
+            res.json(userToMail.email);
+        }
+    })
+} catch (err) {
+    console.log(userToMail.email+ " yodhher wéllé");
+}
+})
+router.put('/incr-quantity/:userId/:productId', async (req, res) => {
+    try {
+        const existingCartUser = await cartBakht.findOne({
+            productId: req.params.productId,
+            userId: req.params.userId
+        });
+        const existingProd = await productBakhtart.findById(req.params.productId);
+        if (existingProd.productQuantity < existingCartUser.quantityMin + 1) {
+            return res.status(400).json({msg: "You have reached the quantity limit!"});
+        }
+        existingCartUser.quantityMin = existingCartUser.quantityMin + 1;
+        const savedCartBakht = await existingCartUser.save();
+            res.json(savedCartBakht);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.put('/decr-quantity/:userId/:productId', async (req, res) => {
+    try {
+        const existingCartUser = await cartBakht.findOne({
+            productId: req.params.productId,
+            userId: req.params.userId
+        });
+        if (existingCartUser.quantityMin - 1 === 0) {
+            return res.status(400).json({msg: "The product quantity can't be null!"});
+        }
+        existingCartUser.quantityMin = existingCartUser.quantityMin - 1;
+        const savedCartBakht = await existingCartUser.save();
+            res.json(savedCartBakht);
     } catch (err) {
         res.status(500).json(err.message);
     }
