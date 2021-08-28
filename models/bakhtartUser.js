@@ -62,6 +62,9 @@ const fashionSchema = new mongoose.Schema({
     userState: {
         type: Boolean
     },
+    roleBakht: {
+        type: String
+    },
     dateCreation: {
         type: Date
     }

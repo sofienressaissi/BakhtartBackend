@@ -87,6 +87,7 @@ router.post("/register", async (req, res) => {
         const newFashion = new fashion({
             dateCreation: Date.now(),
             userState: true,
+            roleBakht: "user",
             firstName,
             lastName,
             username,
