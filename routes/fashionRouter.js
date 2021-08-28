@@ -1,10 +1,10 @@
 const router = require("express").Router();
-const fashion = require('../models/bakhtartUser');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authBakht = require("../midlleware/authBakht");
 require('dotenv').config();
 const crypto = require("crypto");
+const fashion = require('../models/bakhtartUser');
 const forget_passwordFashion = require("../models/forget_passwordFashion");
 const productBakhtart = require('../models/product-bakhtart');
 const cartBakht = require('../models/cartBakhtart');
@@ -12,6 +12,7 @@ const orderBakht = require('../models/orderBakhtart');
 const wishProduct = require('../models/wishProd');
 const productSeen = require('../models/prodSeen');
 const prodRate = require('../models/productRate');
+const categoryBakhtart = require('../models/categoryBakhtAdmin');
 var randomstring = require("randomstring");
 var nodemailer = require('nodemailer');
 
@@ -932,6 +933,14 @@ router.put('/decr-quantity/:userId/:productId', async (req, res) => {
     } catch (err) {
         res.status(500).json(err.message);
     }
+})
+router.get('/allBakhtCatsAdmin', async(req, res) => {
+    categoryBakhtart.find(null, function (err, list_bakhtadmincats) {
+        if (err) {
+            throw err;
+        }
+        res.send(list_bakhtadmincats);
+    })
 })
 
 router.get("/", authBakht, async (req, res) => {
