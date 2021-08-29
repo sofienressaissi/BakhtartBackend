@@ -358,7 +358,8 @@ router.post("/login", async (req, res) => {
                 lastName: fashionn.lastName,
                 username: fashionn.username,
                 email: fashionn.email,
-                phoneNumber: fashionn.phoneNumber
+                phoneNumber: fashionn.phoneNumber,
+                roleBakht: fashionn.roleBakht
             }
         })
     } catch (err) {
@@ -963,7 +964,8 @@ router.get("/", authBakht, async (req, res) => {
         ville: userr.ville,
         gender: userr.gender,
         dateCreation: userr.dateCreation,
-        userState: userr.userState
+        userState: userr.userState,
+        roleBakht: userr.roleBakht
     });
 })
 
