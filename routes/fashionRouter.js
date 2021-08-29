@@ -66,9 +66,12 @@ router.post("/register", async (req, res) => {
         const existingFashionPhone = await fashion.findOne({
             phoneNumber: phoneNumber
         })
-        const existingAdminAcc = await adminBakhtart.findOne({
-            emailAddress: email
+        const existingAdminAcc = await fashion.findOne({
+            email: email
         })
+        if (email === 'bakhtartfashion@gmail.com') {
+            return res.status(400).json({msg: "You can't register with email"});
+        }
         if (existingAdminAcc) {
             return res.status(400).json({msg: "An account with this email already exists"});
         }
