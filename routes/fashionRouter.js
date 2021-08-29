@@ -109,17 +109,17 @@ router.post("/register", async (req, res) => {
         const savedFashion = await newFashion.save();
         res.json(savedFashion);
         var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
+            service: 'gmail',
             auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
+                user: 'bakhtartfashion@gmail.com',
+                pass: 'BakhtartFashion123!'
             },
-            host: process.env.MAILER_HOST,
+            host: 'smtp.gmail.com',
     port: 465,
     secure: false,
         });
         var mailOptions = {
-            from: process.env.MAILER_USER,
+            from: 'bakhtartfashion@gmail.com',
             to: newFashion.email,
             subject: 'BakhtArt - Verify your email',
             text: 'Hello, thanks for registering to BakhtArt. Please copy the address below to verify your account. https://bakhtart-backend.herokuapp.com/fashion/verify-email?token='+newFashion.emailToken,
