@@ -44,4 +44,4 @@ app.use(express.static(path.join(__dirname, 'public')))
   .listen(PORT, () => console.log(`Listening on PORT ${ PORT }`))
 
 app.use("/fashion", require("./routes/fashionRouter"));
-app.user("/adminbakht", require("./routes/adminBakhtRouter"));
+app.use("/adminbakht", require("./routes/adminBakhtRouter"));
