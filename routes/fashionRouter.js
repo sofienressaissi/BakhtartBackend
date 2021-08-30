@@ -52,7 +52,8 @@ router.post("/send-message", async (req, res) => {
             lastName,
             email,
             subject,
-            content
+            content,
+            status: false
         })
         const savedMsg = await newMsg.save();
         res.json(savedMsg);
