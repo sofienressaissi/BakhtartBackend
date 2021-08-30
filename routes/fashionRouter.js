@@ -979,12 +979,12 @@ router.get('/allBakhtCatsAdmin', async(req, res) => {
         res.send(list_bakhtadmincats);
     })
 })
-router.get('/allMsgsUnread', async (req, res) => {
-    msg.count({status: false}, function (err, list_unreadmsgs) {
+router.get('/allMsgs', async (req, res) => {
+    msg.find(null, function (err, list_msgs) {
         if (err) {
             throw err;
         }
-        res.send(list_unreadmsgs);
+        res.send(list_msgs);
     })
 })
 
