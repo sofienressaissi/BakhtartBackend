@@ -979,6 +979,14 @@ router.get('/allBakhtCatsAdmin', async(req, res) => {
         res.send(list_bakhtadmincats);
     })
 })
+router.get('/allMsgsUnread', async (req, res) => {
+    msg.count({status: false}, function (err, list_unreadmsgs) {
+        if (err) {
+            throw err;
+        }
+        res.send(list_unreadmsgs);
+    })
+})
 
 router.get("/", authBakht, async (req, res) => {
     const userr = await fashion.findById(req.userr);
