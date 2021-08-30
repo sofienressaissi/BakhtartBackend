@@ -13,6 +13,7 @@ const wishProduct = require('../models/wishProd');
 const productSeen = require('../models/prodSeen');
 const prodRate = require('../models/productRate');
 const categoryBakhtart = require('../models/categoryBakhtAdmin');
+const msg = require('../models/message');
 var randomstring = require("randomstring");
 var nodemailer = require('nodemailer');
 
@@ -25,6 +26,36 @@ router.put('/fashion-profile/:id', async(req, res) => {
         existedFashion.imageProfile = imageProfile;
         const savedFashion = await existedFashion.save();
         res.json(savedFashion);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+
+router.post("/send-message", async (req, res) => {
+    try {
+        let {
+            firstName,
+            lastName,
+            email,
+            subject,
+            content
+        } = req.body
+        if (!firstName || !lastName || !email || !subject || !content) {
+            return res.status(400).json({msg: "Not all fields have been entered"});
+        }
+        const user = await fashion.findOne({email: email});
+        if (!user || user.roleBakht !== 'user') {
+            return res.status(400).json({msg: "Message can't be sent"});
+        }
+        const newMsg = new msg({
+            firstName,
+            lastName,
+            email,
+            subject,
+            content
+        })
+        const savedMsg = await newMsg.save();
+        res.json(savedMsg);
     } catch (err) {
         res.status(500).json(err.message);
     }
