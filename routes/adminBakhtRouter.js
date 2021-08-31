@@ -564,5 +564,15 @@ router.put('/markasread/:id', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
+router.put('/markasunread/:id', async (req, res) => {
+    try {
+        const msgToUnread = await msg.findById(req.params.id);
+        msgToUnread.status = false;
+        const savedMsg = await msgToUnread.save();
+        res.json(savedMsg);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
 
 module.exports = router;
