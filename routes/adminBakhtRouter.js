@@ -574,6 +574,16 @@ router.put('/markasunread/:id', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
+router.put('/messagereplied/:id', async (req, res) => {
+    try {
+        const msgReplied = await msg.findById(req.params.id);
+        msgReplied.replied = true;
+        const savedMsg = await msgReplied.save();
+        res.json(savedMsg);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
 router.delete('/delete-msg/:id', async (req, res) => {
     try {
         const existingMsg = await msg.findByIdAndDelete(req.params.id);
