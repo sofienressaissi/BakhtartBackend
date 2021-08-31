@@ -17,6 +17,9 @@ const categoryBakhtart = require('../models/categoryBakhtAdmin');
 const msg = require('../models/message');
 var randomstring = require("randomstring");
 var nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
+const apimailKey = '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';
+sgMail.setApiKey(apimailKey);
 
 router.post('/add-new-user/:adminId', async(req, res) => {
     res.setHeader("Content-Type", "text/html");
@@ -593,17 +596,7 @@ router.post('/reply-to-user/:id', async (req, res) => {
             content
         } = req.body
         const adminBakht = await fashion.findById(req.params.id);
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'bakhtartfashion@gmail.com',
-                pass: 'BakhtartFashion123!'
-            },
-            host: 'smtp.gmail.com',
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
+        const message = {
             from: 'bakhtartfashion@gmail.com',
             to: `${email}`,
             subject: `BakhtArt - ${subject} Reply`,
@@ -614,14 +607,7 @@ router.post('/reply-to-user/:id', async (req, res) => {
             <p>//BakhtArt Administrator: ${adminBakht.firstName} ${adminBakht.lastName}</p>
         `
         };
-        console.log("layaaaa: "+email);
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
+        sgMail.send(message).then(res => console.log('Email Sent')).catch(err => console.log(err.message));
     } catch (err) {
         res.status(500).json(err.message);
     }
