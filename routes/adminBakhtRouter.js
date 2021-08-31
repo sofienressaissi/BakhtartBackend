@@ -611,7 +611,7 @@ router.post('/reply-to-user/:id', async (req, res) => {
             html: `
             <p>Hello ${firstName} ${lastName},</p>
             <p>${content}</p>
-            <br/><p>//BakhtArt Administrator: ${adminBakht.firstName} ${adminBakht.lastName}</p>
+            <p>//BakhtArt Administrator: ${adminBakht.firstName} ${adminBakht.lastName}</p>
         `
         };
         console.log("layaaaa: "+email);
