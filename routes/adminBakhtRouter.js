@@ -14,6 +14,7 @@ const wishProduct = require('../models/wishProd');
 const productSeen = require('../models/prodSeen');
 const prodRate = require('../models/productRate');
 const categoryBakhtart = require('../models/categoryBakhtAdmin');
+const msg = require('../models/message');
 var randomstring = require("randomstring");
 var nodemailer = require('nodemailer');
 
@@ -549,6 +550,16 @@ router.put("/update-password/:adminId", async(req, res) => {
                 console.log('Email sent '+ info.response);
             }
         })
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.put('/markasread/:id', async (req, res) => {
+    try {
+        const msgToRead = await msg.findById(req.params.id);
+        msgToRead.status = true;
+        const savedMsg = await msgToRead.save();
+        res.json(savedMsg);
     } catch (err) {
         res.status(500).json(err.message);
     }
