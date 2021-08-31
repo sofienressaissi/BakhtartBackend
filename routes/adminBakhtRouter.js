@@ -583,8 +583,15 @@ router.delete('/delete-msg/:id', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
-router.get('/reply-to-user/:id', async (req, res) => {
+router.post('/reply-to-user/:id', async (req, res) => {
     try {
+        let {
+            email,
+            firstName,
+            lastName,
+            subject,
+            content
+        } = req.body
         const adminBakht = await fashion.findById(req.params.id);
         var transporter = nodemailer.createTransport({
             service: process.env.MAILER_SERVICE,
@@ -598,15 +605,16 @@ router.get('/reply-to-user/:id', async (req, res) => {
         });
         var mailOptions = {
             from: process.env.MAILER_USER,
-            to: `${req.body.email}`,
-            subject: `BakhtArt - ${req.body.subject} Reply`,
+            to: `${email}`,
+            subject: `BakhtArt - ${subject} Reply`,
             text: 'Hello there!',
             html: `
-            <p>Hello ${req.body.firstName} ${req.body.lastName},</p>
-            <p>${req.body.content}
+            <p>Hello ${firstName} ${lastName},</p>
+            <p>${content}
             <br/>//BakhtArt Administrator: ${adminBakht.firstName} ${adminBakht.lastName}
         `
         };
+        console.log("layaaaa: "+email);
         transporter.sendMail(mailOptions, function(error, info) {
             if (error) {
                 console.log(error);
