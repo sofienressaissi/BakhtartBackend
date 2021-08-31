@@ -610,8 +610,8 @@ router.post('/reply-to-user/:id', async (req, res) => {
             text: 'Hello there!',
             html: `
             <p>Hello ${firstName} ${lastName},</p>
-            <p>${content}
-            <br/>//BakhtArt Administrator: ${adminBakht.firstName} ${adminBakht.lastName}
+            <p>${content}</p>
+            <br/><p>//BakhtArt Administrator: ${adminBakht.firstName} ${adminBakht.lastName}</p>
         `
         };
         console.log("layaaaa: "+email);
