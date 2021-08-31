@@ -574,5 +574,49 @@ router.put('/markasunread/:id', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
+router.delete('/delete-msg/:id', async (req, res) => {
+    try {
+        const existingMsg = await msg.findByIdAndDelete(req.params.id);
+        res.json(existingMsg);
+        console.log("Message Deleted");
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.get('/reply-to-user/:id', async (req, res) => {
+    try {
+        const adminBakht = await fashion.findById(req.params.id);
+        var transporter = nodemailer.createTransport({
+            service: process.env.MAILER_SERVICE,
+            auth: {
+                user: process.env.MAILER_USER,
+                pass: process.env.MAILER_PASS
+            },
+            host: process.env.MAILER_HOST,
+    port: 465,
+    secure: false,
+        });
+        var mailOptions = {
+            from: process.env.MAILER_USER,
+            to: `${req.body.email}`,
+            subject: `BakhtArt - ${req.body.subject} Reply`,
+            text: 'Hello there!',
+            html: `
+            <p>Hello ${req.body.firstName} ${req.body.lastName},</p>
+            <p>${req.body.content}
+            <br/>//BakhtArt Administrator: ${adminBakht.firstName} ${adminBakht.lastName}
+        `
+        };
+        transporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent '+ info.response);
+            }
+        })
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
 
 module.exports = router;
