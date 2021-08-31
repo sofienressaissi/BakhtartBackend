@@ -594,17 +594,17 @@ router.post('/reply-to-user/:id', async (req, res) => {
         } = req.body
         const adminBakht = await fashion.findById(req.params.id);
         var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
+            service: 'gmail',
             auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
+                user: 'bakhtartfashion@gmail.com',
+                pass: 'BakhtartFashion123!'
             },
-            host: process.env.MAILER_HOST,
+            host: 'smtp.gmail.com',
     port: 465,
     secure: false,
         });
         var mailOptions = {
-            from: process.env.MAILER_USER,
+            from: 'bakhtartfashion@gmail.com',
             to: `${email}`,
             subject: `BakhtArt - ${subject} Reply`,
             text: 'Hello there!',
