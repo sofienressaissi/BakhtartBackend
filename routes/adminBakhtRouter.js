@@ -597,9 +597,13 @@ router.post('/reply-to-user/:id', async (req, res) => {
         } = req.body
         const adminBakht = await fashion.findById(req.params.id);
         const message = {
-            from: 'sof_ressaissi1995@outlook.com',
+            from: 'bakhtartfashion@gmail.com',
             to: `${email}`,
             subject: `BakhtArt - ${subject} Reply`,
+            host: 'smtp.sendgrid.net',
+	        port: '587',
+	        authentication: 'plain',
+            domain: 'heroku.com',
             text: 'Hello there!',
             html: `
             <p>Hello ${firstName} ${lastName},</p>
