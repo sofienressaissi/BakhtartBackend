@@ -5,6 +5,7 @@ const messageSchema = new mongoose.Schema({
   email: {type: String},
   subject: {type: String},
   content: {type: String},
-  status: {type: Boolean}
+  status: {type: Boolean},
+  replied: {type: Boolean}
 });
 module.exports = Admin = mongoose.model("message", messageSchema);
