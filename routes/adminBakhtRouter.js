@@ -663,5 +663,14 @@ router.put('/approve-user/:id', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
+router.delete('/reject-user/:id', async (req, res) => {
+    try {
+        const existingUser = await fashion.findByIdAndDelete(req.params.id);
+        res.json(existingUser);
+        console.log("User Rejected");
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
 
 module.exports = router;
