@@ -653,5 +653,15 @@ router.get('/verify-email', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
+router.put('/approve-user/:id', async (req, res) => {
+    try {
+        const userToApprove = await fashion.findById(req.params.id);
+        userToApprove.isVerified = true;
+        const userApproved = await userToApprove.save();
+        res.json(userApproved);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
 
 module.exports = router;
