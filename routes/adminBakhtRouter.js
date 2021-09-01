@@ -226,7 +226,7 @@ router.delete('/delete-prod/:productId', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
-router.delete('/delete-user-account/:userId/:adminId', async (req, res) => {
+router.delete('/delete-user-account/:userId', async (req, res) => {
     try {
         let query = {userId: req.params.userId};
     
@@ -237,39 +237,8 @@ router.delete('/delete-user-account/:userId/:adminId', async (req, res) => {
     const existProdSeen = await productSeen.find({userId: req.params.userId});
     const existedProdRate = await prodRate.find({userId: req.params.userId});
     const existedWishProd = await wishProduct.find({userId: req.params.userId});
-    const bakhtexistUser = await fashion.findById(req.params.userId);
-    const bakhtexistAdmin = await fashion.findById(req.params.adminId);
     if (existedOrderProcessing > 0 || existedOrderDelivering > 0) {
-        var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-            to: bakhtexistUser.email,
-            subject: 'BakhtArt - Account Not Deleted',
-            text: 'Hello, account not deleted',
-            html: `
-            <h1>Hello there,</h1>
-            <p>Your account couldn't be deleted.</p>
-            <p>The reason is because you have orders that are processing or in delivering.</p>
-            <p>//${bakhtexistAdmin.firstName} ${bakhtexistAdmin.lastName} (BakhtArt Administrator)</p>
-        `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
-        return res.status(400).json({msg: "Account couldn't be deleted! it may contain processing/in delivering products!"});
+        return res.status(400).json({msg: "Account couldn't be deleted! It may contain processing/in delivering products!"});
     }
     if (existedOrderProcessing === 0 && existedOrderDelivering === 0) {
         if (existedCart) {
@@ -287,7 +256,7 @@ router.delete('/delete-user-account/:userId/:adminId', async (req, res) => {
         if (existedWishProd) {
             await wishProduct.deleteMany(query);
         }
-        let userToDelete = await bakhtuser.findByIdAndDelete(req.params.userId);
+        /* let userToDelete = await fashion.findByIdAndDelete(req.params.userId);
         res.json(userToDelete);
         let administrator = await adminBakhtart.findById(req.params.adminId);
         var transporter = nodemailer.createTransport({
@@ -320,7 +289,7 @@ router.delete('/delete-user-account/:userId/:adminId', async (req, res) => {
             } else {
                 console.log('Email sent '+ info.response);
             }
-        })
+        }) */
     }
     } catch (err) {
         res.status(500).json(err.message);
