@@ -17,6 +17,8 @@ const categoryBakhtart = require('../models/categoryBakhtAdmin');
 const msg = require('../models/message');
 var randomstring = require("randomstring");
 var nodemailer = require('nodemailer');
+const Verifier = require("email-verifier");
+let verifier = new Verifier("at_fbYHeD2J55059T4krj83uGu7XN7ul");
 
 router.post('/add-new-user/:adminId', async(req, res) => {
     res.setHeader("Content-Type", "text/html");
@@ -632,6 +634,21 @@ router.post('/reply-to-user/:id', async (req, res) => {
                 console.log('Email sent '+ info.response);
             }
         })
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
+router.get('/verify-email', async (req, res) => {
+    try {
+        verifier.verify(req.query.email, (err, data) => {
+            if (err) throw err;
+                console.log(data.emailAddress);
+                console.log(data.smtpCheck);
+                if (data.smtpCheck === "false") {
+                    return res.status(400).json({msg: "Email Not Valid!"});
+                }
+                return res.status(200).json({msg: "Email valid!"});
+          });
     } catch (err) {
         res.status(500).json(err.message);
     }

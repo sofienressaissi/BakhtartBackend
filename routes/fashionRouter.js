@@ -141,7 +141,7 @@ router.post("/register", async (req, res) => {
         })
         const savedFashion = await newFashion.save();
         res.json(savedFashion);
-        var transporter = nodemailer.createTransport({
+        /*var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
                 user: 'bakhtartfashion@gmail.com',
@@ -171,7 +171,7 @@ router.post("/register", async (req, res) => {
             } else {
                 console.log('Email sent '+ info.response);
             }
-        })
+        })*/
     } catch (err) {
         res.status(500).json(err.message);
     }
