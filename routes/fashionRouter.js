@@ -185,7 +185,8 @@ router.put('/change-password/:userId', async (req, res) => {
 router.put('/forget-password', async (req, res) => {
     try {
         let {
-            email
+            email,
+            newPass
         } = req.body;
         if (!email) {
             return res.status(400).json({msg: "The field is empty"});
@@ -194,47 +195,12 @@ router.put('/forget-password', async (req, res) => {
         if (!fashionn) {
             return res.status(400).json({msg: "No account with this email exists"});
         }
-
-        const newFPFashion = new forget_passwordFashion({
-            email
-        })
-        const savedFPFashion = await newFPFashion.save();
-        res.json(savedFPFashion);
-
-        let newPass = randomstring.generate(8);
         const salt = await bcrypt.genSalt();
         const newPasswordHash = await bcrypt.hash(newPass, salt);
         fashionn.password = newPasswordHash;
-        await fashionn.save();
-
-        var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-            to: fashionn.email,
-            subject: 'BakhtArt - Forget Password',
-            text: 'Hello '+fashionn.username+', Did you forget your password ? Click here to reset it !',
-            html: `
-                <h1>Hello ${fashionn.username},</h1>
-                <p>Did you forget your password ?</p>
-                <p>We have generated a new one for you: ${newPass}</p>
-            `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
+        console.log(newPass);
+        const savedFashion = await fashionn.save();
+        res.json(savedFashion);
 
     } catch (err) {
         res.status(500).json(err.message);
