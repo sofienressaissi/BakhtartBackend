@@ -16,6 +16,8 @@ const categoryBakhtart = require('../models/categoryBakhtAdmin');
 const msg = require('../models/message');
 var randomstring = require("randomstring");
 var nodemailer = require('nodemailer');
+const Verifier = require("email-verifier");
+let verifier = new Verifier("at_fbYHeD2J55059T4krj83uGu7XN7ul");
 
 router.put('/fashion-profile/:id', async(req, res) => {
     try {
@@ -251,76 +253,7 @@ router.post("/login", async (req, res) => {
     }
 })
 
-router.get("/reactivate-account", async (req, res, next) => {
-    try {
-        const fashionnReactivation = await fashion.findOne({ email: req.query.email });
-        if (!fashionnReactivation) {
-            return res.redirect('https://bakhtart.herokuapp.com/bakhtArt/login');
-        }
-        fashionnReactivation.userState = true;
-        await fashionnReactivation.save();
-        await req.login(fashionnReactivation, async (err) => {
-            if (err) {
-                return next(err);
-            }
-            const redirectUrl = req.session.redirectTo || 'https://bakhtart.herokuapp.com/bakhtArt/login';
-            delete req.session.redirectTo;
-            return res.redirect(redirectUrl);
-        })
-    } catch (error) {
-        console.log(error);
-        return res.redirect('https://bakhtart.herokuapp.com/bakhtArt/login');
-    }
-})
-
-router.get("/update-email/:userId/:email", async(req, res, next) => {
-    try {
-        const userToChangeEmail = await fashion.findById(req.params.userId);
-    userToChangeEmail.email = req.params.email;
-    await userToChangeEmail.save();
-    var transporter = nodemailer.createTransport({
-        service: process.env.MAILER_SERVICE,
-    auth: {
-        user: process.env.MAILER_USER,
-        pass: process.env.MAILER_PASS
-    },
-    host: process.env.MAILER_HOST,
-port: 465,
-secure: false,
-});
-var mailOptions = {
-    from: process.env.MAILER_USER,
-        to: `${userToChangeEmail.email}`,
-        subject: 'BakhtArt - New Email Address',
-        text: 'Hello '+userToChangeEmail.firstName+' '+userToChangeEmail.lastName+', your new BakhtArt email address is the same as your email account has',
-        html: `
-    <p>Hello ${userToChangeEmail.firstName} ${userToChangeEmail.lastName},</p>
-    <p>Your email address has been updated!</p>
-    <p>You will future emails from us in this email account.</p>
-    <p><br/> BakhtArt</p>
-`
-    };
-    transporter.sendMail(mailOptions, function(error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent '+ info.response);
-        }
-    })
-    await req.login(userToChangeEmail, async (err) => {
-        if (err) {
-            return next(err);
-        }
-        const redirectUrl = req.session.redirectTo || 'https://bakhtart.herokuapp.com/bakhtArt/account';
-        delete req.session.redirectTo;
-        return res.redirect(redirectUrl);
-    })
-    } catch (err) {
-        return res.redirect('https://bakhtart.herokuapp.com/bakhtArt/account');
-    }
-})
-
-router.put("/update-fashion/:id", async(req, res) => {
+router.get("/update-fashion/:id", async(req, res) => {
     try {
         let {
             firstName,
@@ -388,44 +321,10 @@ router.put("/update-fashion/:id", async(req, res) => {
         if (!ville) {
             ville = fashionnToUpdate.ville;
         }
-        if (email !== fashionnToUpdate.email) {
-            var transporter = nodemailer.createTransport({
-                service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-                to: `${fashionnToUpdate.email}`,
-                subject: 'BakhtArt - Change Email Address',
-                text: 'Hello '+fashionnToUpdate.firstName+' '+fashionnToUpdate.lastName+', If you requested to change your email address, please confirm below.',
-                html: `
-            <p>Hello ${fashionnToUpdate.firstName} ${fashionnToUpdate.lastName},</p>
-            <p>If you requested to change your email address, please confirm below.</p>
-            <p>Otherwise, <span style="color: red;">
-            let us know if it is a suspicious activity!</span></p>
-            <a href="https://bakhtart-backend.herokuapp.com/fashion/update-email/${fashionnToUpdate._id}/${email}" target="_blank">Change my email address</a>
-            <br/><br/> Or copy the following URL into your browser <br/> 
-            https://bakhtart-backend.herokuapp.com/fashion/update-email/${fashionnToUpdate._id}/${email}
-        `
-            };
-            transporter.sendMail(mailOptions, function(error, info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent '+ info.response);
-                }
-            })
-            
-        }
         fashionnToUpdate.firstName = firstName;
         fashionnToUpdate.lastName = lastName;
         fashionnToUpdate.username = username;
+        fashionnToUpdate.email = email;
         fashionnToUpdate.phoneNumber = phoneNumber;
         fashionnToUpdate.gender = gender;
         fashionnToUpdate.region = region;
