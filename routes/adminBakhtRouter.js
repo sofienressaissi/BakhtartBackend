@@ -20,7 +20,7 @@ var nodemailer = require('nodemailer');
 const Verifier = require("email-verifier");
 let verifier = new Verifier("at_fbYHeD2J55059T4krj83uGu7XN7ul");
 
-router.post('/add-new-user/:adminId', async(req, res) => {
+router.post('/add-new-user', async(req, res) => {
     res.setHeader("Content-Type", "text/html");
     try {
         let {
@@ -67,6 +67,7 @@ router.post('/add-new-user/:adminId', async(req, res) => {
         const newFashion = new fashion({
             dateCreation: Date.now(),
             userState: true,
+            roleBakht: "user",
             firstName,
             lastName,
             username,
@@ -84,38 +85,6 @@ router.post('/add-new-user/:adminId', async(req, res) => {
         })
         const savedFashion = await newFashion.save();
         res.json(savedFashion);
-        const administrator = await fashion.findById(req.params.adminId);
-        var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-            to: newFashion.email,
-            subject: 'BakhtArt - Welcome To BakhtArt',
-            text: 'Hello, welcome to bakhtart',
-            html: `
-            <h1>Hello there,</h1>
-            <p>The administrator ${administrator.firstName} ${administrator.lastName} added you to <a href="https://bakhtart.herokuapp.com" target="_blank">BakhtArt</a>.</p>
-            <p>Please login using the credentials below:</p>
-            <p>Email: ${newFashion.email}<br/>Password: ${password}</p>
-            <p><a href="https://bakhtart.herokuapp.com/login" target="_blank">https://bakhtart.herokuapp.com/login</a></p>
-            <b>NB:</b> This is an automated mail.
-        `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
     } catch (err) {
         res.status(500).json(err.message);
     }
