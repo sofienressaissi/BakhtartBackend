@@ -253,7 +253,7 @@ router.post("/login", async (req, res) => {
     }
 })
 
-router.get("/update-fashion/:id", async(req, res) => {
+router.put("/update-fashion/:id", async(req, res) => {
     try {
         let {
             firstName,
