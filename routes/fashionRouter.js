@@ -129,7 +129,6 @@ router.post("/register", async (req, res) => {
             username,
             email,
             password: passwordHash,
-            emailToken: crypto.randomBytes(64).toString('hex'),
             isVerified: false,
             phoneNumber: phoneNumber,
             imageProfile: "unknownAvatar.jpg",
@@ -141,37 +140,6 @@ router.post("/register", async (req, res) => {
         })
         const savedFashion = await newFashion.save();
         res.json(savedFashion);
-        /*var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'bakhtartfashion@gmail.com',
-                pass: 'BakhtartFashion123!'
-            },
-            host: 'smtp.gmail.com',
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: 'bakhtartfashion@gmail.com',
-            to: newFashion.email,
-            subject: 'BakhtArt - Verify your email',
-            text: 'Hello, thanks for registering to BakhtArt. Please copy the address below to verify your account. https://bakhtart-backend.herokuapp.com/fashion/verify-email?token='+newFashion.emailToken,
-            html: `
-            <h1>Hello ${newFashion.username},</h1>
-            <p>Thank you for registering to our website.</p>
-            <p>Please click below to verify your account.</p>
-            <a href="https://bakhtart-backend.herokuapp.com/fashion/verify-email?token=${newFashion.emailToken}">Verify your account</a>
-            <br/> Or copy the following URL into your browser <br/> 
-            https://bakhtart-backend.herokuapp.com/fashion/verify-email?token=${newFashion.emailToken}
-        `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })*/
     } catch (err) {
         res.status(500).json(err.message);
     }
@@ -208,36 +176,6 @@ router.put('/change-password/:userId', async (req, res) => {
         fashionn.password = passwordHash;
         const updatedFashion = await fashionn.save();
         res.json(updatedFashion);
-
-        var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-            to: `${fashionn.email}`,
-            subject: 'BakhtArt - Password Updated',
-            text: 'Hello. Your password has been updated! Please let us know if it is a suspicious activity!',
-            html: `
-            <p>Hello ${fashionn.firstName} ${fashionn.lastName},</p>
-            <p>Your password has been updated! 
-            <span style="color: red;">contact us if it is a suspicious activity!</span></p>
-            <br/> BakhtArt
-        `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
 
     } catch (err) {
         res.status(500).json(err.message);
@@ -303,29 +241,6 @@ router.put('/forget-password', async (req, res) => {
     }
 })
 
-router.get("/verify-email", async (req, res, next) => {
-    try {
-        const fashionn = await fashion.findOne({ emailToken: req.query.token });
-        if (!fashionn) {
-            return res.redirect('https://bakhtart.herokuapp.com/bakhtArt/login');
-        }
-        fashionn.emailToken = null;
-        fashionn.isVerified = true;
-        await fashionn.save();
-        await req.login(fashionn, async (err) => {
-            if (err) {
-                return next(err);
-            }
-            const redirectUrl = req.session.redirectTo || 'https://bakhtart.herokuapp.com/bakhtArt/login';
-            delete req.session.redirectTo;
-            return res.redirect(redirectUrl);
-        })
-    } catch (error) {
-        console.log(error);
-        return res.redirect('https://bakhtart.herokuapp.com/bakhtArt/login');
-    }
-})
-
 router.post("/login", async (req, res) => {
     try {
         const {
@@ -340,40 +255,10 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({msg: "No account with this email has been registered"});
         }
         if (fashionn.isVerified === false) {
-            return res.status(400).json({msg: "Please check your email to verify your account to login to your account."});
+            return res.status(400).json({msg: "Your account is still in moderation! We will email you once done!"});
         }
         if (fashionn.userState === false) {
-            var transporter = nodemailer.createTransport({
-                service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-                to: fashionn.email,
-                subject: 'BakhtArt - Account Reactivation',
-                text: 'Hello '+fashionn.username+', your account is deactivated. Click the link below to reactivate it.',
-                html: `
-            <h2>Hello ${fashionn.username},</h2>
-            <p>Your account is deactivated. That is the reason of not being able to log in.<br/>Please click below to reactivate it.</p>
-            <a href="https://bakhtart-backend.herokuapp.com/fashion/reactivate-account?email=${fashionn.email}">Reactivate your account</a>
-            <br/><br/> Or copy the following URL into your browser <br/> 
-            https://bakhtart-backend.herokuapp.com/fashion/reactivate-account?email=${fashionn.email}
-        `
-            };
-            transporter.sendMail(mailOptions, function(error, info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent '+ info.response);
-                }
-            })
-            return res.status(400).json({msg: "You deactivated your account. Check your email to reactivate it."});
+            return res.status(400).json({msg: "You deactivated your account! Contact us for account reactivation!"});
         }
         const isMatch = await bcrypt.compare(password, fashionn.password);
         if (!isMatch) {
@@ -600,72 +485,6 @@ router.put("/deactivate/:id", authBakht, async(req, res) => {
         const fashionnUpdated = await fashionnToUpdate.save();
         res.json(fashionnUpdated);
 
-        var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-            to: fashionnToUpdate.email,
-            subject: 'BakhtArt - Account Deactivation',
-            text: 'Hello '+fashionnToUpdate.username+', your account has been deactivated.',
-            html: `
-            <h2>Hello ${fashionnToUpdate.username},</h2>
-            <h2>Your account has been deactivated</h2>
-        `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
-
-    } catch (err) {
-        return res.status(500).json(err.message);
-    }
-})
-
-router.delete("/delete/:id", authBakht, async(req, res) => {
-    try {
-        const deletedFashion = await fashion.findByIdAndDelete(req.params.id);
-        res.json(deletedFashion);
-
-        var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-            to: deletedFashion.email,
-            subject: 'BakhtArt - Account Deletion',
-            text: 'Hello '+deletedFashion.username+', your account has been deleted. We are sorry to see you go.',
-            html: `
-            <h2>Hello ${deletedFashion.username},</h2>
-            <h2>Your account has been deleted.</h2>
-            <h2>We are sorry to see you go.</h2>
-        `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
     } catch (err) {
         return res.status(500).json(err.message);
     }

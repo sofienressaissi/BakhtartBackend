@@ -672,5 +672,15 @@ router.delete('/reject-user/:id', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
+router.put('/reactivate-user/:id', async (req, res) => {
+    try {
+        const userToReactivate = await fashion.findById(req.params.id);
+        userToReactivate.userState = true;
+        const userReactivated = await userToReactivate.save();
+        res.json(userReactivated);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
 
 module.exports = router;
