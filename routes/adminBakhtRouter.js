@@ -258,38 +258,6 @@ router.delete('/delete-user-account/:userId', async (req, res) => {
         }
          let userToDelete = await fashion.findByIdAndDelete(req.params.userId);
         res.json(userToDelete);
-        /*let administrator = await adminBakhtart.findById(req.params.adminId);
-        var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-            to: userToDelete.email,
-            subject: 'BakhtArt - Account Deleted',
-            text: 'Hello, account deleted',
-            html: `
-            <h1>Hello there,</h1>
-            <p>Your account has been deleted as you asked.</p>
-            <p>We are sorry to see you go.</p>
-            <p>You can register again anytime.</p>
-            <p><a href="https://bakhtart.herokuapp.com/register" target="_blank">https://bakhtart.herokuapp.com/register</a></p>
-            <p>//${administrator.firstName} ${administrator.lastName} (BakhtArt Administrator)</p>
-        `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        }) */
     }
     } catch (err) {
         res.status(500).json(err.message);
@@ -341,94 +309,16 @@ router.put("/update-account/:adminId", async (req, res) => {
         if (!phoneNumber) {
             phoneNumber = adminToUpdate.phoneNumber;
         }
-        if (email !== adminToUpdate.email) {
-            var transporter = nodemailer.createTransport({
-                service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-                to: `${adminToUpdate.email}`,
-                subject: 'BakhtArt - Change Email Address',
-                text: 'Hello '+adminToUpdate.firstName+' '+adminToUpdate.lastName+', If you requested to change your email address, please confirm below.',
-                html: `
-            <p>Hello ${adminToUpdate.firstName} ${adminToUpdate.lastName},</p>
-            <p>You requested to change your email address, please confirm below.</p>
-            <a href="https://bakhtart-backend.herokuapp.com/adminbakht/update-email/${adminToUpdate._id}/${email}" target="_blank">Change my email address</a>
-            <br/><br/> Or copy the following URL into your browser <br/> 
-            https://bakhtart-backend.herokuapp.com/adminbakht/update-email/${adminToUpdate._id}/${email}
-        `
-            };
-            transporter.sendMail(mailOptions, function(error, info) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    console.log('Email sent '+ info.response);
-                }
-            })
-            
-        }
         adminToUpdate.firstName = firstName;
         adminToUpdate.lastName = lastName;
         adminToUpdate.username = username;
+        adminToUpdate.email = email;
         adminToUpdate.phoneNumber = phoneNumber;
 
         const adminUpdated = await adminToUpdate.save();
         res.json(adminUpdated);
     } catch (err) {
         return res.status(500).json(err.message);
-    }
-})
-router.get("/update-email/:adminId/:emailAddress", async(req, res, next) => {
-    try {
-        const adminToChangeEmail = await fashion.findById(req.params.adminId);
-        adminToChangeEmail.email = req.params.emailAddress;
-    await adminToChangeEmail.save();
-    var transporter = nodemailer.createTransport({
-        service: process.env.MAILER_SERVICE,
-    auth: {
-        user: process.env.MAILER_USER,
-        pass: process.env.MAILER_PASS
-    },
-    host: process.env.MAILER_HOST,
-port: 465,
-secure: false,
-});
-var mailOptions = {
-    from: process.env.MAILER_USER,
-        to: `${adminToChangeEmail.email}`,
-        subject: 'BakhtArt - New Email Address',
-        text: 'Hello '+adminToChangeEmail.firstName+' '+adminToChangeEmail.lastName+', your new BakhtArt email address is the same as your email account has',
-        html: `
-    <p>Hello Administrator "${adminToChangeEmail.firstName} ${adminToChangeEmail.lastName}",</p>
-    <p>Your email address has been updated!</p>
-    <p>You will future emails from us in this email account.</p>
-    <p><br/> BakhtArt</p>
-`
-    };
-    transporter.sendMail(mailOptions, function(error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent '+ info.response);
-        }
-    })
-    await req.login(adminToChangeEmail, async (err) => {
-        if (err) {
-            return next(err);
-        }
-        const redirectUrl = req.session.redirectTo || 'https://bakhtart.herokuapp.com/admin/edit-account';
-        delete req.session.redirectTo;
-        return res.redirect(redirectUrl);
-    })
-    } catch (err) {
-        return res.redirect('https://bakhtart.herokuapp.com/admin/edit-account');
     }
 })
 router.put("/update-password/:adminId", async(req, res) => {
@@ -461,35 +351,6 @@ router.put("/update-password/:adminId", async(req, res) => {
         adminbakht.password = passwordHash;
         const updatedAB = await adminbakht.save();
         res.json(updatedAB);
-
-        var transporter = nodemailer.createTransport({
-            service: process.env.MAILER_SERVICE,
-            auth: {
-                user: process.env.MAILER_USER,
-                pass: process.env.MAILER_PASS
-            },
-            host: process.env.MAILER_HOST,
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: process.env.MAILER_USER,
-            to: `${adminbakht.email}`,
-            subject: 'BakhtArt - Password Updated',
-            text: 'Hello. Your password has been updated!',
-            html: `
-            <p>Hello Administrator ${adminbakht.firstName} ${adminbakht.lastName},</p>
-            <p>Your password has been updated! 
-            <br/> BakhtArt
-        `
-        };
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
     } catch (err) {
         res.status(500).json(err.message);
     }
