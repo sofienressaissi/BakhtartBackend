@@ -3,9 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authBakht = require("../midlleware/authBakht");
 require('dotenv').config();
-const crypto = require("crypto");
 const fashion = require('../models/bakhtartUser');
-const forget_passwordFashion = require("../models/forget_passwordFashion");
 const productBakhtart = require('../models/product-bakhtart');
 const cartBakht = require('../models/cartBakhtart');
 const orderBakht = require('../models/orderBakhtart');
@@ -14,10 +12,6 @@ const productSeen = require('../models/prodSeen');
 const prodRate = require('../models/productRate');
 const categoryBakhtart = require('../models/categoryBakhtAdmin');
 const msg = require('../models/message');
-var randomstring = require("randomstring");
-var nodemailer = require('nodemailer');
-const Verifier = require("email-verifier");
-let verifier = new Verifier("at_fbYHeD2J55059T4krj83uGu7XN7ul");
 
 router.put('/fashion-profile/:id', async(req, res) => {
     try {
@@ -586,42 +580,6 @@ router.post('/place-order/:productId/:userId', async (req, res) => {
     } catch (err) {
         console.log(userToMail.email+ " yodhher wéllé");
     }
-})
-router.get('/send-email-order/:userId/:orderNumber', async (req, res) => {
-try {
-    const userToMail = await fashionBakht.findById(req.params.userId);
-    res.json(userToMail.email);
-    var transporter = nodemailer.createTransport({
-        service: process.env.MAILER_SERVICE,
-        auth: {
-            user: process.env.MAILER_USER,
-            pass: process.env.MAILER_PASS
-        },
-        host: process.env.MAILER_HOST,
-port: 465,
-secure: false,
-    });
-    var mailOptions = {
-        from: process.env.MAILER_USER,
-        to: `${userToMail.email}`,
-        subject: `BakhtArt - Order #${req.params.orderNumber} Confirmation`,
-        text: 'Hello '+userToMail.firstName+', thank you for shopping with us.',
-        html: `
-    <h2>Hello ${userToMail.firstName} ${userToMail.lastName},</h2>
-    <p>Your Order #${req.params.orderNumber} has been submitted! Thank you for shopping with us!</p>
-    <a href="https://bakhtart.herokuapp.com/bakhtArt/my-orders">See My Order</a>
-`
-    };
-    transporter.sendMail(mailOptions, function(error, info) {
-        if (error) {
-            console.log(userToMail.email+ " yodhher wéllé");
-        } else {
-            res.json(userToMail.email);
-        }
-    })
-} catch (err) {
-    console.log(userToMail.email+ " yodhher wéllé");
-}
 })
 router.put('/incr-quantity/:userId/:productId', async (req, res) => {
     try {

@@ -1,12 +1,8 @@
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const authBakht = require("../midlleware/authBakht");
 require('dotenv').config();
-const crypto = require("crypto");
 const mongoose = require("mongoose");
 const fashion = require('../models/bakhtartUser');
-const forget_passwordFashion = require("../models/forget_passwordFashion");
 const productBakhtart = require('../models/product-bakhtart');
 const cartBakht = require('../models/cartBakhtart');
 const orderBakht = require('../models/orderBakhtart');
@@ -16,7 +12,6 @@ const prodRate = require('../models/productRate');
 const categoryBakhtart = require('../models/categoryBakhtAdmin');
 const msg = require('../models/message');
 var randomstring = require("randomstring");
-var nodemailer = require('nodemailer');
 const Verifier = require("email-verifier");
 let verifier = new Verifier("at_fbYHeD2J55059T4krj83uGu7XN7ul");
 
@@ -390,49 +385,6 @@ router.delete('/delete-msg/:id', async (req, res) => {
         const existingMsg = await msg.findByIdAndDelete(req.params.id);
         res.json(existingMsg);
         console.log("Message Deleted");
-    } catch (err) {
-        res.status(500).json(err.message);
-    }
-})
-router.post('/reply-to-user/:id', async (req, res) => {
-    try {
-        let {
-            email,
-            firstName,
-            lastName,
-            subject,
-            content
-        } = req.body
-        const adminBakht = await fashion.findById(req.params.id);
-        var transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'bakhtartfashion@gmail.com',
-                pass: 'BakhtartFashion123!'
-            },
-            host: 'smtp.gmail.com',
-    port: 465,
-    secure: false,
-        });
-        var mailOptions = {
-            from: 'bakhtartfashion@gmail.com',
-            to: `${email}`,
-            subject: `BakhtArt - ${subject} Reply`,
-            text: 'Hello there!',
-            html: `
-            <p>Hello ${firstName} ${lastName},</p>
-            <p>${content}</p>
-            <p>//BakhtArt Administrator: ${adminBakht.firstName} ${adminBakht.lastName}</p>
-        `
-        };
-        console.log("layaaaa: "+email);
-        transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent '+ info.response);
-            }
-        })
     } catch (err) {
         res.status(500).json(err.message);
     }
