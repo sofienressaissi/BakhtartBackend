@@ -256,9 +256,9 @@ router.delete('/delete-user-account/:userId', async (req, res) => {
         if (existedWishProd) {
             await wishProduct.deleteMany(query);
         }
-        /* let userToDelete = await fashion.findByIdAndDelete(req.params.userId);
+         let userToDelete = await fashion.findByIdAndDelete(req.params.userId);
         res.json(userToDelete);
-        let administrator = await adminBakhtart.findById(req.params.adminId);
+        /*let administrator = await adminBakhtart.findById(req.params.adminId);
         var transporter = nodemailer.createTransport({
             service: process.env.MAILER_SERVICE,
             auth: {
