@@ -574,11 +574,9 @@ router.post('/place-order/:productId/:userId', async (req, res) => {
         const existingProd = await productBakhtart.findById(req.params.productId);
         existingProd.productQuantity = existingProd.productQuantity - newOrderBakht.quantityOrd;
         await existingProd.save();
-        const userToMail = await fashionBakht.findById(req.params.userId);
-        res.json(userToMail.email);
         
     } catch (err) {
-        console.log(userToMail.email+ " yodhher wéllé");
+        res.status(500).json(err.message);
     }
 })
 router.put('/incr-quantity/:userId/:productId', async (req, res) => {
