@@ -570,10 +570,12 @@ router.post('/place-order/:productId/:userId', async (req, res) => {
             stateOrd: "Processing",
             dateOrd: Date.now()
         });
-        await newOrderBakht.save();
+        const orderToSave = await newOrderBakht.save();
+        res.json(orderToSave);
         const existingProd = await productBakhtart.findById(req.params.productId);
         existingProd.productQuantity = existingProd.productQuantity - newOrderBakht.quantityOrd;
-        await existingProd.save();
+        const prodToSave = await existingProd.save();
+        res.json(prodToSave);
         
     } catch (err) {
         res.status(500).json(err.message);
