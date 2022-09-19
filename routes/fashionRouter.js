@@ -200,7 +200,7 @@ router.put('/forget-password', async (req, res) => {
             service: "gmail",
             auth: {
               user: "bakhtartfashion@gmail.com",
-              pass: "BakhtartFashion123!"
+              pass: "xwnntaqcbsotdgxy"
             },
           });
           let mailDetails = await transporter.sendMail({
