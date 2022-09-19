@@ -197,15 +197,15 @@ router.put('/forget-password', async (req, res) => {
         fashionn.password = newPasswordHash;
         const savedFashion = await fashionn.save();
         let transporter = nodemailer.createTransport({
-            service: "gmail",
-            host: 'smtp.gmail.com',
+            service: process.env.MAILER_SERVICE,
+            host: process.env.MAILER_HOST,
             auth: {
-              user: "bakhtartfashion@gmail.com",
-              pass: "xwnntaqcbsotdgxy"
+              user: process.env.MAILER_USER,
+              pass: process.env.MAILER_PASS
             },
           });
           let mailDetails = await transporter.sendMail({
-            from: "bakhtartfashion@gmail.com",
+            from: process.env.MAILER_USER,
             to: req.body.email,
             subject: "Forget Password",
             html: `<p>Sir/Madam ${req.body.email},</p>
