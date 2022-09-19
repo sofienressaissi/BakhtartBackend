@@ -197,12 +197,12 @@ router.put('/forget-password', async (req, res) => {
         fashionn.password = newPasswordHash;
         const savedFashion = await fashionn.save();
         let transporter = nodemailer.createTransport({
-            host: process.env.MAILER_HOST,
-            port: 587,
+            host: "smtp.gmail.com",
+            port: 465,
             secure: false,
             auth: {
-              user: process.env.MAILER_USER,
-              pass: process.env.MAILER_PASS
+              user: "bakhtartfashion@gmail.com",
+              pass: "BakhtartFashion123!"
             },
           });
           let info = await transporter.sendMail({
