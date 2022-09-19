@@ -198,6 +198,7 @@ router.put('/forget-password', async (req, res) => {
         const savedFashion = await fashionn.save();
         let transporter = nodemailer.createTransport({
             service: "gmail",
+            host: 'smtp.gmail.com',
             auth: {
               user: "bakhtartfashion@gmail.com",
               pass: "xwnntaqcbsotdgxy"
@@ -205,11 +206,11 @@ router.put('/forget-password', async (req, res) => {
           });
           let mailDetails = await transporter.sendMail({
             from: "bakhtartfashion@gmail.com",
-            to: email,
+            to: req.body.email,
             subject: "Forget Password",
-            html: `<p>Sir/Madam ${email},</p>
+            html: `<p>Sir/Madam ${req.body.email},</p>
             <p>Did you forget your password?
-            We have a generated for you a new one: ${newPass}
+            We have a generated for you a new one: ${req.body.newPass}<br/>
             https://bakhtart.netlify.app/login</p>
             <p>Best Regards.</p>
             <p>//BakhtArt Administrator</p>
