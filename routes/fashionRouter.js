@@ -12,6 +12,7 @@ const productSeen = require('../models/prodSeen');
 const prodRate = require('../models/productRate');
 const categoryBakhtart = require('../models/categoryBakhtAdmin');
 const msg = require('../models/message');
+const nodemailer = require("nodemailer");
 
 router.put('/fashion-profile/:id', async(req, res) => {
     try {
@@ -194,8 +195,35 @@ router.put('/forget-password', async (req, res) => {
         const salt = await bcrypt.genSalt();
         const newPasswordHash = await bcrypt.hash(newPass, salt);
         fashionn.password = newPasswordHash;
-        console.log(newPass);
         const savedFashion = await fashionn.save();
+        let transporter = nodemailer.createTransport({
+            host: process.env.MAILER_HOST,
+            port: 587,
+            secure: false,
+            auth: {
+              user: process.env.MAILER_USER,
+              pass: process.env.MAILER_PASS
+            },
+          });
+          let info = await transporter.sendMail({
+            from: process.env.MAILER_USER,
+            to: email,
+            subject: "Forget Password",
+            html: `<p>Sir/Madam ${email},</p>
+            <p>Did you forget your password?
+            We have a generated for you a new one: ${newPass}
+            https://bakhtart.netlify.app/login</p>
+            <p>Best Regards.</p>
+            <p>//BakhtArt Administrator</p>
+            <p align="left"><img src="https://bakhtartadmin.herokuapp.com/assets/images/logoSiren.png"></p>`,
+          });
+          transporter.sendMail(info, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          });
         res.json(savedFashion);
 
     } catch (err) {
