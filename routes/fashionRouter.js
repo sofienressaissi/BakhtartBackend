@@ -197,16 +197,14 @@ router.put('/forget-password', async (req, res) => {
         fashionn.password = newPasswordHash;
         const savedFashion = await fashionn.save();
         let transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 465,
-            secure: false,
+            service: "gmail",
             auth: {
               user: "bakhtartfashion@gmail.com",
               pass: "BakhtartFashion123!"
             },
           });
-          let info = await transporter.sendMail({
-            from: process.env.MAILER_USER,
+          let mailDetails = await transporter.sendMail({
+            from: "bakhtartfashion@gmail.com",
             to: email,
             subject: "Forget Password",
             html: `<p>Sir/Madam ${email},</p>
@@ -217,7 +215,7 @@ router.put('/forget-password', async (req, res) => {
             <p>//BakhtArt Administrator</p>
             <p align="left"><img src="https://bakhtartadmin.herokuapp.com/assets/images/logoSiren.png"></p>`,
           });
-          transporter.sendMail(info, function(error, info){
+          transporter.sendMail(mailDetails, function(error, info){
             if (error) {
               console.log(error);
             } else {
