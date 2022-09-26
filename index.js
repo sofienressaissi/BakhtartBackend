@@ -7,7 +7,7 @@ const cors = require ('cors');
 require("dotenv").config();
 const app = express();
 
-mongoose.connect('mongodb+srv://bakhtart:BakhtFash321%21@bakhtart1.yhqjy.mongodb.net',{
+mongoose.connect(process.env.MONGO_DB_CONNECTION, {
   useNewUrlParser : true,
   useUnifiedTopology: true,
 }, (err)=> {
