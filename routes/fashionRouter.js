@@ -583,6 +583,14 @@ router.delete('/delete-order/:productId/:userId', async (req, res) => {
         res.status(500).json(err.message);
     }
 })
+router.delete('/delete-order-by-id/:orderId', async (req, res) => {
+    try {
+        const orderToDelete = await orderBakht.findByIdAndDelete(req.params.orderId);
+        res.json(orderToDelete);
+    } catch (err) {
+        res.status(500).json(err.message);
+    }
+})
 router.post('/place-order/:productId/:userId', async (req, res) => {
     try {
         let {
